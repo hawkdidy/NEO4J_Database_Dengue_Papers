@@ -1,0 +1,131 @@
+
+//authors []->()
+LOAD CSV WITH HEADERS FROM 'file:/test.csv' AS line
+WITH split(line.Authors, ";") as Authors, line.Title as Title, line.Year as Year, line.Source.title as Journal, line.Volume as Volume, line.Issue as Issue, line.Cited_by as Cited_by,
+line.DOI as DOI, line.Link as Link,line.Abstract as Abstract, line.PubMed_ID as PubMed_ID
+
+CREATE (paper:Title {title:Title, year:Year, cited_by:Cited_by, DOI:DOI, link:Link,pubmed_id:PubMed_ID, abstractL:Abstract})
+
+WITH paper as paper,Authors as Authors
+UNWIND Authors AS Author
+
+merge (author:Author {name:Author})
+
+
+CREATE (author)-[:WROTE]->(paper)
+
+//paper []-()
+LOAD CSV WITH HEADERS FROM 'file:/test.csv' AS line
+WITH line.Title as Title,line.Source_title as Journal, line.Volume as Volume, line.Issue as Issue
+
+MATCH (paper:Title{title:Title})
+MERGE(journal:Journal {title:Journal})
+CREATE (paper)-[:PUBLISHED_IN{volume:Volume, issue:Issue}]->(journal)
+
+//pub []-()
+LOAD CSV WITH HEADERS FROM 'file:/test.csv' AS line
+WITH line.Source_title as Journal,line.Publisher as Publisher
+
+MATCH (journal:Journal{title:Journal})
+MERGE (publisher:Publisher{name:Publisher})
+MERGE (journal)-[:PUBLISHED_BY]->(publisher)
+
+//Affiliation[]-()
+LOAD CSV WITH HEADERS FROM 'file:/test.csv' AS line
+WITH  line.Title as Title, line.Year as Year, split(line.Affiliations, ";") as Affiliations
+
+WITH Title as Title, Affiliations UNWIND Affiliations AS Affiliation
+
+MATCH (paper:Title{title:Title})
+MERGE (aff:Affiliation {name:Affiliation})
+
+MERGE (paper)-[:AFFLIATED_WITH]->(aff)
+
+
+
+//year
+
+LOAD CSV WITH HEADERS FROM'file:/test.csv'  AS line
+WITH  line.Title as Title, line.Year as Year
+
+
+MATCH (paper:Title{title:Title})
+MERGE (aff:Time {year:Year})
+
+MERGE (paper)-[:YEAR]->(aff)
+
+//LANGUAGE
+
+LOAD CSV WITH HEADERS FROM  'file:/test.csv' AS line
+WITH line.Title as Title, line.Language_of_Original_Document as lang
+
+
+MATCH (paper:Title{title:Title})
+MERGE (aff:language {language:lang})
+
+MERGE (paper)-[:HASLANGUAGE]->(aff)
+
+//KEYWORDS
+ split(line.Author_Keywords, ";") as Author_Keywords, split(line.Index_Keywords, ";") as Index_Keywords
+
+LOAD CSV WITH HEADERS FROM 'file:/test.csv' AS line
+WITH line.Title as Title, split(line.Author_Keywords, ";") as Author_Keywords
+
+
+MATCH (paper:Title{title:Title})
+with paper,Author_Keywords
+unwind Author_Keywords as Author_Keyword
+MERGE (aff:Keyword {keyword:Author_Keyword})
+
+MERGE (paper)-[:HASKEYWORD{value:"AUTHOR"}]->(aff)
+
+
+///
+LOAD CSV WITH HEADERS FROM 'file:/test.csv' AS line
+WITH line.Title as Title, split(line.Index_Keywords, ";") as Index_Keywords
+
+MATCH (paper:Title{title:Title})
+with paper,Index_Keywords
+unwind Index_Keywords as Index_Keyword
+MERGE (aff:Keyword {keyword:Index_Keyword})
+
+MERGE (paper)-[:HASKEYWORD{value:"INDEX"}]->(aff)
+
+//
+
+LOAD CSV WITH HEADERS FROM  'file:/test.csv' AS line
+WITH line.Title as Title, line.Language_of_Original_Document as lang,line.Conference_name as Conference_name, line.Conference_location as Conference_location
+where not line.Conference_name ="NA"
+MATCH (paper:Title{title:Title})
+MERGE (aff:Conference {name:Conference_name,location:Conference_location})
+
+MERGE (paper)-[:CONFERENCE]->(aff)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
