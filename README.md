@@ -1,11 +1,11 @@
 # NEO4J_Database_Dengue_Papers
-Have you ever wonders what was going in a field related to a certain keyword? Look no further! This repository is a combination of code that helps you build a NEO4J database of all research papers that come out of a SCOPUS query. This is still a littler rough since it was developed in 36 hours for the Dengue Hackathon by the Brussels Data Science community. 
+Have you ever wondered what was going in a field related to a certain keyword? Look no further! This repository is a combination of code that helps you build a NEO4J database of all research papers that come out of a SCOPUS query. This is still a littler rough since it was developed in 36 hours for the Dengue Hackathon by the Brussels Data Science community. 
 
 The code is broken down into 3 main parts. Building the NEO4J database, building a similarity matrix based on paper abstracts, and visualizing that information in gephi. 
 
 The NEO4J database was built based on the following data model:
 
-![alt tag](http://imgur.com/a/8K9N7)
+![alt tag](https://github.com/hawkdidy/NEO4J_Database_Dengue_Papers/blob/master/data_model.png)
 
 Although the database was not completed to that exact model due to the time constraint, most of the model was implimented. Unfortunatly authors were not linked to referenced authors. This was pretty complicated due to format of the cited papers colomn. The database allows to view many connections in the field! Just load it up in the NEO4J console and have fun! Feel free to use any of your own data that you have aquired from SCOPUS. It should load just find with the database. For the hackathon we focused on papers related to dengue outbreak predicition.
 
